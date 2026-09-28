@@ -7,9 +7,9 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { STOPS } from "./tour.js?v=24";
-import { SHOTS, FILM } from "./shots.js?v=33";
+import { SHOTS, FILM } from "./shots.js?v=34";
 
-const ASSET_VERSION = "7";                                    // bump when the model is rebuilt (cache busting)
+const ASSET_VERSION = "8";                                    // bump when the model is rebuilt (cache busting)
 const canvas = document.getElementById("view");
 const stage = canvas.parentElement;
 const flight = document.getElementById("flight");
@@ -512,9 +512,9 @@ frame();
 
 // ---------------------------------------------------------------- page bits
 const QUALITIES = [
-  ["Phone as the brain", "An ordinary Android phone runs the cameras, detection and mission logic. A proven autopilot flies the aircraft and owns every failsafe, so it still lands safely if the phone fails."],
+  ["Phone as the brain", "An ordinary Android phone runs the cameras, detection and mission logic. Flight control and failsafes run on the autopilot, independently of the phone. Phone-loss responses have been tested in simulation; flight validation is next."],
   ["Plans its own landing", "Before takeoff it scores landing sites from open terrain and land-cover data, loads each as an autopilot landing sequence, and notifies the people nearby."],
-  ["Printed, foam, repairable", "A 3D-printed centre body with CNC-cut foam wings. It comes apart into three pieces for transport: each wing slides off its carbon joiner after one bolt and one plug. Every part is replaceable in the field, and the belly skid is a wear part."],
+  ["Printed, foam, repairable", "A 3D-printed centre body with CNC-cut foam wings. It comes apart into three pieces for transport: each wing slides off its carbon joiner after one bolt and one plug. Wear parts such as the belly skid and prop blades are designed to swap in the field."],
   ["Open and free tools", "Designed end to end with free software: FreeCAD, AeroSandbox, OpenVSP, SU2, CalculiX and ArduPilot."],
 ];
 const Q_SLOTS = ["q-phone", "q-landing", "q-repair", "q-tools"];

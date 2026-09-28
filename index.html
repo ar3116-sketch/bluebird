@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=33">
+  <link rel="stylesheet" href="style.css?v=34">
   <script type="importmap">
     { "imports": {
         "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
@@ -32,7 +32,8 @@
   <section id="top" class="hero wrap">
     <h1 class="display">BLUEBIRD</h1>
     <div class="meta-row">
-      <div class="meta"><span>Autonomous survey UAV</span><span class="dim">[ Open design ]</span></div>
+      <div class="meta"><span>Autonomous survey UAV</span><span class="dim">[ Open design ]</span>
+        <span class="stage-tag"><span class="dot"></span>Designed and simulated; prototype construction next</span></div>
       <p class="meta-text">BLUEBIRD is a 1.8 m blended-wing drone for conservation and agriculture. An ordinary Android phone is its
         onboard computer, it plans where it will land before it takes off, and it is built from 3D-printed parts and foam
         using free tools.</p>
@@ -189,13 +190,48 @@
   <!-- ============================= status ============================= -->
   <section id="status" class="wrap section status">
     <div class="sys-online"><span class="dot"></span>Status</div>
-    <p class="status-line">Designed, simulated and analysed. First build next.</p>
+    <p class="status-line">Designed and simulated. Prototype construction next.</p>
+    <div class="milestone" aria-labelledby="ms-title">
+      <h3 id="ms-title" class="ms-title"><span class="ms-kicker">Next milestone</span>First prototype and supervised flight tests</h3>
+      <div class="ms-cols">
+        <div>
+          <h4>Budget</h4>
+          <p class="ms-big">&asymp; $1,850</p>
+          <dl class="ms-list">
+            <div><dt>Electronics and sensors</dt><dd>$1,081</dd></div>
+            <div><dt>Airframe materials and launch dolly</dt><dd>&asymp; $620</dd></div>
+            <div><dt>Spares (skids, props, servos)</dt><dd>&asymp; $150</dd></div>
+          </dl>
+          <p class="ms-note">Electronics are from the itemised parts list; airframe and spares are estimates. The Android phone is not included.</p>
+        </div>
+        <div>
+          <h4>Support needed</h4>
+          <ul class="ms-ul">
+            <li>A faculty research mentor</li>
+            <li>Funding, or in-kind parts: filament, foam cutting and a CNC-machined spar node</li>
+            <li>A flying field with an experienced safety pilot</li>
+          </ul>
+        </div>
+        <div>
+          <h4>What it will demonstrate</h4>
+          <ol class="ms-ul">
+            <li><b>Build.</b> The airframe prints and assembles from the published CAD, within 2.69 kg.</li>
+            <li><b>Bench.</b> Balance, control throws, the phone-to-autopilot link and the autopilot's response with the phone unplugged.</li>
+            <li><b>Flight.</b> With a safety pilot on the sticks: stall and cruise speeds, the dolly launch, the airbrake approach and a landing-site failsafe, each checked against the predictions.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
     <div data-slot="status-wide" class="media ph wide" data-ph="Render: ground station"></div>
   </section>
 
   <!-- ============================= footer ============================= -->
   <footer id="contact" class="footer wrap">
+    <div class="f-lead">
     <a class="brand brand-lg" href="#top" aria-label="BLUEBIRD home"><svg class="mark" viewBox="86.14 59.00 54.86 41.84" aria-hidden="true"><path fill-rule="evenodd" d="M123.680,80.700 L130.160,76.320 L137.120,79.440 L131.120,91.080 L123.920,95.160 L115.340,93.660 L101.960,99.840 L108.740,93.660 L99.920,94.560 L115.220,88.020 L107.780,85.860 L95.720,76.260 L110.660,79.740 L97.460,74.940 L90.140,67.620 L102.080,72.240 L87.140,60.000 L110.240,68.640 L119.120,78.480 L110.480,74.760 L124.220,82.560 L118.280,86.760 L127.520,82.440 Z M135.860,83.220 L137.300,80.220 L140.000,82.020 Z M132.320,79.380 L133.520,81.120 L135.260,80.220 Z"/></svg><svg class="word" viewBox="77.70 105.70 80.60 11.10" aria-hidden="true"><path fill-rule="evenodd" d="M86.000,106.000 L87.552,107.365 L87.552,111.040 L87.194,111.355 L87.552,111.670 L87.552,115.135 L86.000,116.500 L80.866,116.500 L78.000,116.500 L78.000,110.410 L78.000,106.000 Z M88.985,116.500 L88.985,106.000 L91.851,106.000 L91.851,114.085 L98.537,114.085 L96.866,116.500 Z M106.657,113.980 L106.657,106.000 L109.522,106.000 L109.522,115.030 L107.851,116.500 L101.642,116.500 L99.970,115.030 L99.970,106.000 L102.836,106.000 L102.836,113.980 Z M117.522,112.405 L113.821,112.405 L113.821,114.085 L120.507,114.085 L118.716,116.500 L110.955,116.500 L110.955,106.000 L120.507,106.000 L118.716,108.415 L113.821,108.415 L113.821,110.095 L119.075,110.095 Z M129.940,106.000 L131.493,107.365 L131.493,111.040 L131.134,111.355 L131.493,111.670 L131.493,115.135 L129.940,116.500 L124.806,116.500 L121.940,116.500 L121.940,110.410 L121.940,106.000 Z M132.925,116.500 L132.925,106.000 L135.791,106.000 L135.791,116.500 Z M145.343,112.300 L145.104,112.300 L147.015,116.500 L143.552,116.500 L140.209,112.825 L140.607,112.300 L140.090,112.300 L140.090,116.500 L137.224,116.500 L137.224,106.000 L145.224,106.000 L146.776,107.365 L146.776,111.040 Z M155.970,116.500 L148.448,116.500 L148.448,106.000 L155.970,106.000 L158.000,107.890 L158.000,114.610 Z M84.687,110.095 L84.687,108.100 L80.866,108.100 L80.866,110.095 Z M80.866,112.720 L80.866,114.400 L84.687,114.400 L84.687,112.720 Z M128.627,110.095 L128.627,108.100 L124.806,108.100 L124.806,110.095 Z M124.806,112.720 L124.806,114.400 L128.627,114.400 L128.627,112.720 Z M143.910,110.095 L143.910,108.100 L140.090,108.100 L140.090,110.095 Z M155.134,109.045 L154.537,108.415 L151.313,108.415 L151.313,114.085 L154.537,114.085 L155.134,113.455 Z"/></svg></a>
+    <p class="seeking">Seeking a faculty research mentor and prototype collaborators. Current priorities: fabrication, bench
+      validation and supervised flight testing.</p>
+    </div>
     <div class="f-cols">
       <div><h4>Project</h4><a href="#system">System</a><a href="#qualities">Design</a><a href="#uses">Uses</a><a href="#status">Status</a></div>
       <div><h4>Links</h4><a href="https://github.com/ar3116-sketch" rel="noopener">GitHub</a>
@@ -207,6 +243,6 @@
     <p class="copy">&copy; 2026 BLUEBIRD project</p>
   </footer>
 
-  <script type="module" src="main.js?v=33"></script>
+  <script type="module" src="main.js?v=34"></script>
 </body>
 </html>

@@ -46,6 +46,7 @@ a { color: inherit; }
 .dim { color: var(--ink-dim); }
 .meta-text { font-family: var(--mono); font-size: 12px; line-height: 1.55; text-transform: uppercase; max-width: 520px; margin: 0; color: var(--ink); }
 .down { font-size: 22px; text-decoration: none; color: var(--ink-dim); }
+.stage-tag { display: inline-flex; gap: 8px; align-items: center; margin-top: 6px; color: var(--ink); }
 @media (max-width: 720px) { .meta-row { grid-template-columns: 1fr; } .down { display: none; } }
 
 /* ---- pinned flight stage ---- */
@@ -206,6 +207,23 @@ a { color: inherit; }
 /* status */
 .status-line { font-size: clamp(22px, 3vw, 34px); font-weight: 500; letter-spacing: -0.01em; margin: 18px 0 0; max-width: 780px; }
 
+/* next milestone */
+.milestone { margin-top: 36px; border: 1px solid var(--line); padding: 26px 26px 22px; }
+.ms-title { font-size: clamp(18px, 2vw, 22px); font-weight: 500; margin: 0 0 22px; display: flex; flex-direction: column; gap: 8px; }
+.ms-kicker { font-family: var(--mono); font-size: 10.5px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
+.ms-cols { display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: 28px; }
+.ms-cols h4 { font-family: var(--mono); font-size: 10px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-dim); margin: 0 0 12px; }
+.ms-big { font-size: 30px; font-weight: 500; letter-spacing: -0.01em; margin: 0 0 12px; }
+.ms-list { margin: 0; }
+.ms-list div { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); padding: 7px 0; font-size: 13px; }
+.ms-list dt { color: var(--ink-dim); }
+.ms-list dd { margin: 0; font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+.ms-note { font-family: var(--mono); font-size: 10.5px; line-height: 1.5; color: var(--ink-dim); margin: 10px 0 0; }
+.ms-ul { margin: 0; padding-left: 18px; font-size: 13.5px; line-height: 1.5; }
+.ms-ul li { margin-bottom: 8px; }
+.ms-ul b { font-weight: 600; }
+@media (max-width: 860px) { .ms-cols { grid-template-columns: 1fr; gap: 22px; } .milestone { padding: 20px 18px 16px; } }
+
 /* footer */
 .footer { padding-top: 120px; padding-bottom: 40px; border-top: 1px solid var(--line); margin-top: 96px; display: grid;
   grid-template-columns: 1fr 2fr; gap: 24px; }
@@ -213,5 +231,6 @@ a { color: inherit; }
 .f-cols h4 { font-family: var(--mono); font-size: 10px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-dim); margin: 0 0 12px; }
 .f-cols a, .f-cols span { display: block; font-size: 13px; text-decoration: none; margin-bottom: 6px; }
 .f-cols a:hover { color: var(--accent); }
+.seeking { font-size: 14px; line-height: 1.5; max-width: 360px; margin: 22px 0 0; color: var(--ink); }
 .copy { grid-column: 1 / -1; font-family: var(--mono); font-size: 10px; text-transform: uppercase; color: var(--ink-dim); margin: 40px 0 0; }
 @media (max-width: 720px) { .footer { grid-template-columns: 1fr; } }

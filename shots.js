@@ -22,7 +22,7 @@ export const SHOTS = {
     cap: "Seated on the passive launch dolly at its 8° lift-off attitude. Render from the CAD." },
   "q-phone": { src: "assets/renders/q_phone_brain", tag: "Render",
     alt: "X-ray view of the aircraft with the phone, flight controller, cameras and servos lifted out and glowing data-flow lines between them.",
-    cap: "The phone runs the mission over MAVLink; the flight controller alone drives the servos and motor, so a phone failure is never a flight-safety event. Render." },
+    cap: "The phone runs the mission over MAVLink; the flight controller alone drives the servos and motor and runs every failsafe, independently of the phone. Render." },
   "q-repair": { src: "assets/renders/q_exploded", tag: "Render",
     alt: "Exploded view: printed centre body, foam outer wings on a carbon spar, V-node, skid sled, motor and folding prop.",
     cap: "Printed centre body, EPP foam wings on a carbon spar, a TPU wear sled: every part replaceable in the field. Render.",

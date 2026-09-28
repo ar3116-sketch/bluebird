@@ -136,7 +136,7 @@ export const METHOD = [
   {
     step: "Ground planner",
     decision: "Landing sites are chosen before takeoff and written into the autopilot's mission.",
-    why: "From free data (30 m terrain, ESA land cover, OpenStreetMap) the planner finds open, flat patches with at least 60 m of run away from buildings, roads and power lines, and checks that every point on the route can reach one with the reserve. Each site becomes an ArduPilot landing sequence, so any failsafe ends at the nearest vetted site even with the phone dead. The required run grows with density altitude.",
+    why: "From free data (30 m terrain, ESA land cover, OpenStreetMap) the planner finds open, flat patches with at least 60 m of run away from buildings, roads and power lines, and checks that every point on the route can reach one with the reserve. Each site becomes an ArduPilot landing sequence, so the autopilot's own failsafes can reach the nearest vetted site without the phone; this is tested in simulation, not yet in flight. The required run grows with density altitude.",
     trade: { cols: ["Approach", "Who picks the site", "Needs the phone?"], win: 2, rows: [
       ["Return to launch", "fixed", "no, but may be out of reach"],
       ["Choose in flight", "phone, by camera", "yes"],
@@ -150,14 +150,17 @@ export const METHOD = [
   {
     step: "Verification",
     decision: "Prove the safety logic in simulation now; prove the physics on the first airframe.",
-    why: "The landing-site failsafes run end to end in ArduPilot software-in-the-loop with the aircraft's own parameters: a return-to-launch goes to the nearest site, the phone can divert, and a go-around on final lands at the other site. Automated audits of the CAD solids check that every part prints and every unit can be serviced. The first build follows a staged test plan, and the stall is checked in flight before anything below 10 m/s is trusted.",
+    why: "The landing-site and phone-loss failsafes run end to end in ArduPilot software-in-the-loop with the aircraft's own parameters and a simulated flare lidar: a return-to-launch goes to the nearest site, the phone can divert, a go-around on final lands at the other site, losing the phone never interrupts the flight, and the autopilot refuses to arm without a ground-station link. Automated audits of the CAD solids check whether each part prints and each unit can be serviced, and list the fixes. The first build follows a staged test plan, and the stall is checked in flight before anything below 10 m/s is trusted.",
     trade: { cols: ["SITL test", "Result"], win: -1, rows: [
-      ["Failsafe goes to the nearest site", "landed 22 m from the aim point; crow opened"],
-      ["Phone diverts on approach", "landed 23 m from the other site"],
-      ["Go-around on final, then divert", "climbed out, landed 24 m from the other site"],
+      ["Failsafe goes to the nearest site", "landed 25 m from the aim point; crow opened"],
+      ["Phone diverts on approach", "landed 27 m from the other site"],
+      ["Go-around on final, then divert", "climbed out, landed 29 m from the other site"],
+      ["Phone lost, ground link up", "kept flying the survey; no failsafe needed"],
+      ["Phone and ground link lost", "failsafe after 19 s; landed 27 m from the nearest site"],
+      ["No ground link at arming", "arming refused by the autopilot"],
       ["Mission change in plain RTL", "firmware quirk documented and handled"]] },
-    method: "ArduPlane 4.7.1 SITL driven by pytest over MAVLink; unit tests for the planner and the phone app; DFM and service audits on the exported CAD.",
-    stats: [["4/4", "", "SITL landing tests"], ["45", "", "planner tests"], ["95", "", "phone-app core tests"]],
+    method: "ArduPlane 4.7.1 SITL driven by pytest over MAVLink, with the phone and ground station on their own links; unit tests for the planner and the phone app; DFM and service audits on the exported CAD.",
+    stats: [["9/9", "", "SITL tests"], ["57", "", "ground-software tests"], ["142", "", "phone-app tests"]],
     figs: [],
     sec: "Verification status and test plan",
   },

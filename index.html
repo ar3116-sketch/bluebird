@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BLUEBIRD</title>
+  <meta name="description" content="BLUEBIRD: an open blended-wing survey drone for conservation and agriculture that uses an Android phone as its onboard computer.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%2286.14%2059.00%2054.86%2041.84%22%3E%3Cpath%20fill%3D%22%238dc4e6%22%20fill-rule%3D%22evenodd%22%20d%3D%22M123.680%2C80.700%20L130.160%2C76.320%20L137.120%2C79.440%20L131.120%2C91.080%20L123.920%2C95.160%20L115.340%2C93.660%20L101.960%2C99.840%20L108.740%2C93.660%20L99.920%2C94.560%20L115.220%2C88.020%20L107.780%2C85.860%20L95.720%2C76.260%20L110.660%2C79.740%20L97.460%2C74.940%20L90.140%2C67.620%20L102.080%2C72.240%20L87.140%2C60.000%20L110.240%2C68.640%20L119.120%2C78.480%20L110.480%2C74.760%20L124.220%2C82.560%20L118.280%2C86.760%20L127.520%2C82.440%20Z%20M135.860%2C83.220%20L137.300%2C80.220%20L140.000%2C82.020%20Z%20M132.320%2C79.380%20L133.520%2C81.120%20L135.260%2C80.220%20Z%22/%3E%3C/svg%3E">
+  <meta property="og:title" content="BLUEBIRD: an open survey drone">
+  <meta property="og:description" content="A 1.8 m blended-wing survey drone for conservation and agriculture, with an Android phone as its onboard computer. Design, analysis and simulation.">
+  <meta property="og:image" content="https://ar3116-sketch.github.io/bluebird/assets/still_top.jpg">
+  <meta name="theme-color" content="#0a1826">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=18">
+  <script type="importmap">
+    { "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    } }
+  </script>
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="#top" aria-label="BLUEBIRD home"><svg class="mark" viewBox="86.14 59.00 54.86 41.84" aria-hidden="true"><path fill-rule="evenodd" d="M123.680,80.700 L130.160,76.320 L137.120,79.440 L131.120,91.080 L123.920,95.160 L115.340,93.660 L101.960,99.840 L108.740,93.660 L99.920,94.560 L115.220,88.020 L107.780,85.860 L95.720,76.260 L110.660,79.740 L97.460,74.940 L90.140,67.620 L102.080,72.240 L87.140,60.000 L110.240,68.640 L119.120,78.480 L110.480,74.760 L124.220,82.560 L118.280,86.760 L127.520,82.440 Z M135.860,83.220 L137.300,80.220 L140.000,82.020 Z M132.320,79.380 L133.520,81.120 L135.260,80.220 Z"/></svg><svg class="word" viewBox="77.70 105.70 80.60 11.10" aria-hidden="true"><path fill-rule="evenodd" d="M86.000,106.000 L87.552,107.365 L87.552,111.040 L87.194,111.355 L87.552,111.670 L87.552,115.135 L86.000,116.500 L80.866,116.500 L78.000,116.500 L78.000,110.410 L78.000,106.000 Z M88.985,116.500 L88.985,106.000 L91.851,106.000 L91.851,114.085 L98.537,114.085 L96.866,116.500 Z M106.657,113.980 L106.657,106.000 L109.522,106.000 L109.522,115.030 L107.851,116.500 L101.642,116.500 L99.970,115.030 L99.970,106.000 L102.836,106.000 L102.836,113.980 Z M117.522,112.405 L113.821,112.405 L113.821,114.085 L120.507,114.085 L118.716,116.500 L110.955,116.500 L110.955,106.000 L120.507,106.000 L118.716,108.415 L113.821,108.415 L113.821,110.095 L119.075,110.095 Z M129.940,106.000 L131.493,107.365 L131.493,111.040 L131.134,111.355 L131.493,111.670 L131.493,115.135 L129.940,116.500 L124.806,116.500 L121.940,116.500 L121.940,110.410 L121.940,106.000 Z M132.925,116.500 L132.925,106.000 L135.791,106.000 L135.791,116.500 Z M145.343,112.300 L145.104,112.300 L147.015,116.500 L143.552,116.500 L140.209,112.825 L140.607,112.300 L140.090,112.300 L140.090,116.500 L137.224,116.500 L137.224,106.000 L145.224,106.000 L146.776,107.365 L146.776,111.040 Z M155.970,116.500 L148.448,116.500 L148.448,106.000 L155.970,106.000 L158.000,107.890 L158.000,114.610 Z M84.687,110.095 L84.687,108.100 L80.866,108.100 L80.866,110.095 Z M80.866,112.720 L80.866,114.400 L84.687,114.400 L84.687,112.720 Z M128.627,110.095 L128.627,108.100 L124.806,108.100 L124.806,110.095 Z M124.806,112.720 L124.806,114.400 L128.627,114.400 L128.627,112.720 Z M143.910,110.095 L143.910,108.100 L140.090,108.100 L140.090,110.095 Z M155.134,109.045 L154.537,108.415 L151.313,108.415 L151.313,114.085 L154.537,114.085 L155.134,113.455 Z"/></svg></a>
+    <nav class="links"><a href="#system">System</a><a href="#qualities">Design</a><a href="#uses">Uses</a><a href="#status">Status</a></nav>
+    <a class="nav-cta" href="#contact">Contact</a>
+  </header>
+
+  <!-- ============================== hero ============================== -->
+  <section id="top" class="hero wrap">
+    <h1 class="display">BLUEBIRD</h1>
+    <div class="meta-row">
+      <div class="meta"><span>Autonomous survey UAV</span><span class="dim">[ Open design ]</span></div>
+      <p class="meta-text">BLUEBIRD is a 1.8 m blended-wing drone for conservation and agriculture. An ordinary Android phone is its
+        onboard computer, it plans where it will land before it takes off, and it is built from 3D-printed parts and foam
+        using free tools.</p>
+      <a class="down" href="#flight" aria-label="Skip to the flight sequence">&darr;</a>
+    </div>
+  </section>
+
+  <!-- ===================== pinned 3D flight sequence ===================== -->
+  <section id="flight" class="flight">
+    <div class="stage">
+      <canvas id="view" aria-label="3D model of BLUEBIRD: the prop unfolds and the airbrake opens as you scroll, then the skin turns transparent and each subsystem is explained"></canvas>
+      <img id="still" class="still" src="assets/still_top.jpg" alt="BLUEBIRD seen from above" hidden>
+      <div class="hud hud-l"><span class="dot"></span><span id="phase-label">Glide &middot; prop folded</span></div>
+      <div class="hud hud-r"><span id="phase-num">01</span> / <span id="phase-total">03</span></div>
+      <aside class="tour-card" aria-live="polite" style="visibility:hidden">
+        <span class="tc-kicker"></span>
+        <h3 class="tc-title"></h3>
+        <p class="tc-mode"></p>
+        <p class="tc-text"></p>
+        <dl class="tc-specs"></dl>
+      </aside>
+      <a class="skip" href="#system" hidden>Skip the tour &darr;</a>
+      <ul class="tour-legend" aria-label="Subsystem colours" style="visibility:hidden"></ul>
+      <div class="viewer-bar" hidden>
+        <button data-pose="glide">Glide</button><button data-pose="cruise">Cruise</button>
+        <button data-pose="airbrake">Airbrake</button>
+        <button class="close" data-close>Close</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== system overview ======================== -->
+  <section id="system" class="wrap section">
+    <h2 class="h2">System overview</h2>
+    <div class="cards">
+      <article class="card">
+        <h3>BLUEBIRD</h3>
+        <div class="media ph" data-ph="Render: aircraft"></div>
+        <dl>
+          <div><dt>Span</dt><dd>1.8 m</dd></div>
+          <div><dt>Cruise</dt><dd>14 m/s</dd></div>
+          <div><dt>Survey altitude</dt><dd>100 m AGL</dd></div>
+        </dl>
+      </article>
+      <article class="card">
+        <h3>Phone brain</h3>
+        <div class="media ph" data-ph="Render: phone bay"></div>
+        <dl>
+          <div><dt>Computer</dt><dd>Android phone</dd></div>
+          <div><dt>Cameras</dt><dd>12 MP RGB + thermal</dd></div>
+          <div><dt>Autopilot</dt><dd>ArduPilot</dd></div>
+        </dl>
+      </article>
+      <article class="card">
+        <h3>Ground planner</h3>
+        <div class="media ph" data-ph="Screenshot: landing-site map"></div>
+        <dl>
+          <div><dt>Input</dt><dd>Open terrain data</dd></div>
+          <div><dt>Output</dt><dd>Mission + landing sites</dd></div>
+          <div><dt>Alerts</dt><dd>People near each site</dd></div>
+        </dl>
+      </article>
+      <article class="card">
+        <h3>Launch dolly</h3>
+        <div class="media ph" data-ph="Render: dolly"></div>
+        <dl>
+          <div><dt>Release</dt><dd>Passive, by lift</dd></div>
+          <div><dt>Crosswind</dt><dd>Up to 3 m/s</dd></div>
+          <div><dt>Also</dt><dd>Hand + bungee launch</dd></div>
+        </dl>
+      </article>
+    </div>
+  </section>
+
+  <!-- ========================= interactive view ========================= -->
+  <section class="wrap section viewer-cta">
+    <div class="sys-online"><span class="dot"></span>System online</div>
+    <div class="cta-row">
+      <p>Explore the aircraft. Open the airbrake. See the full system.</p>
+      <button id="launch-viewer" class="btn">Launch interactive view</button>
+    </div>
+  </section>
+
+  <!-- ========================= design qualities ========================= -->
+  <section id="qualities" class="wrap section">
+    <h2 class="h2">Design qualities</h2>
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-tab="0">Phone as the brain</button>
+      <button role="tab" aria-selected="false" data-tab="1">Plans its own landing</button>
+      <button role="tab" aria-selected="false" data-tab="2">Printed, foam, repairable</button>
+      <button role="tab" aria-selected="false" data-tab="3">Open and free tools</button>
+      <button role="tab" aria-selected="false" data-tab="4" class="tab-method">Methodology</button>
+    </div>
+    <div class="quality">
+      <div class="q-num"><span class="q-idx">01 / 04</span><span class="big" id="q-big">1</span></div>
+      <div class="q-body">
+        <span class="q-kicker" id="q-kicker">Phone as the brain</span>
+        <p id="q-text"></p>
+      </div>
+      <div class="q-media ph" id="q-media" data-ph="Render"></div>
+    </div>
+
+    <!-- methodology: how each design decision was reached (filled from METHOD in main.js) -->
+    <div class="method" id="method" hidden>
+      <div class="m-head">
+        <p class="m-lede">One parameter file drives the CAD and every analysis. Each loop below ends in a design decision,
+          and each decision was re-checked by the next discipline.</p>
+        <a class="btn m-paper" href="assets/bluebird_whitepaper.pdf" target="_blank" rel="noopener">White paper (PDF)</a>
+      </div>
+      <ol class="m-steps" role="tablist" aria-label="Methodology steps"></ol>
+      <article class="m-body" aria-live="polite">
+        <div class="m-text">
+          <span class="m-kicker"></span>
+          <h3 class="m-decision"></h3>
+          <p class="m-why"></p>
+          <div class="m-trade-wrap"><table class="m-trade"></table></div>
+          <p class="m-method"></p>
+        </div>
+        <div class="m-side">
+          <div class="m-stats"></div>
+          <figure class="m-fig"><img alt="" loading="lazy"><figcaption></figcaption></figure>
+          <div class="m-thumbs"></div>
+          <a class="m-more" target="_blank" rel="noopener"></a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================== uses ============================== -->
+  <section id="uses" class="wrap section">
+    <div class="uses">
+      <article class="use">
+        <h3>Conservation</h3>
+        <div class="media ph tall" data-ph="Render or photo: wildlife survey"></div>
+        <p>Thermal and RGB surveys of wildlife over large, remote areas, with animal detection on board and landing sites
+          chosen ahead of time.</p>
+      </article>
+      <article class="use">
+        <h3>Agriculture</h3>
+        <div class="media ph tall" data-ph="Render or photo: crop survey"></div>
+        <p>Low-cost mapping of fields and pasture, repairable in the field and cheap enough for farms and data-scarce
+          regions.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================== film ============================== -->
+  <section class="wrap section">
+    <h2 class="h2">Launch, survey, land, repeat</h2>
+    <div class="film ph" data-ph="Video coming soon"></div>
+  </section>
+
+  <!-- ============================= status ============================= -->
+  <section id="status" class="wrap section status">
+    <div class="sys-online"><span class="dot"></span>Status</div>
+    <p class="status-line">Designed, simulated and analysed. First build next.</p>
+  </section>
+
+  <!-- ============================= footer ============================= -->
+  <footer id="contact" class="footer wrap">
+    <a class="brand brand-lg" href="#top" aria-label="BLUEBIRD home"><svg class="mark" viewBox="86.14 59.00 54.86 41.84" aria-hidden="true"><path fill-rule="evenodd" d="M123.680,80.700 L130.160,76.320 L137.120,79.440 L131.120,91.080 L123.920,95.160 L115.340,93.660 L101.960,99.840 L108.740,93.660 L99.920,94.560 L115.220,88.020 L107.780,85.860 L95.720,76.260 L110.660,79.740 L97.460,74.940 L90.140,67.620 L102.080,72.240 L87.140,60.000 L110.240,68.640 L119.120,78.480 L110.480,74.760 L124.220,82.560 L118.280,86.760 L127.520,82.440 Z M135.860,83.220 L137.300,80.220 L140.000,82.020 Z M132.320,79.380 L133.520,81.120 L135.260,80.220 Z"/></svg><svg class="word" viewBox="77.70 105.70 80.60 11.10" aria-hidden="true"><path fill-rule="evenodd" d="M86.000,106.000 L87.552,107.365 L87.552,111.040 L87.194,111.355 L87.552,111.670 L87.552,115.135 L86.000,116.500 L80.866,116.500 L78.000,116.500 L78.000,110.410 L78.000,106.000 Z M88.985,116.500 L88.985,106.000 L91.851,106.000 L91.851,114.085 L98.537,114.085 L96.866,116.500 Z M106.657,113.980 L106.657,106.000 L109.522,106.000 L109.522,115.030 L107.851,116.500 L101.642,116.500 L99.970,115.030 L99.970,106.000 L102.836,106.000 L102.836,113.980 Z M117.522,112.405 L113.821,112.405 L113.821,114.085 L120.507,114.085 L118.716,116.500 L110.955,116.500 L110.955,106.000 L120.507,106.000 L118.716,108.415 L113.821,108.415 L113.821,110.095 L119.075,110.095 Z M129.940,106.000 L131.493,107.365 L131.493,111.040 L131.134,111.355 L131.493,111.670 L131.493,115.135 L129.940,116.500 L124.806,116.500 L121.940,116.500 L121.940,110.410 L121.940,106.000 Z M132.925,116.500 L132.925,106.000 L135.791,106.000 L135.791,116.500 Z M145.343,112.300 L145.104,112.300 L147.015,116.500 L143.552,116.500 L140.209,112.825 L140.607,112.300 L140.090,112.300 L140.090,116.500 L137.224,116.500 L137.224,106.000 L145.224,106.000 L146.776,107.365 L146.776,111.040 Z M155.970,116.500 L148.448,116.500 L148.448,106.000 L155.970,106.000 L158.000,107.890 L158.000,114.610 Z M84.687,110.095 L84.687,108.100 L80.866,108.100 L80.866,110.095 Z M80.866,112.720 L80.866,114.400 L84.687,114.400 L84.687,112.720 Z M128.627,110.095 L128.627,108.100 L124.806,108.100 L124.806,110.095 Z M124.806,112.720 L124.806,114.400 L128.627,114.400 L128.627,112.720 Z M143.910,110.095 L143.910,108.100 L140.090,108.100 L140.090,110.095 Z M155.134,109.045 L154.537,108.415 L151.313,108.415 L151.313,114.085 L154.537,114.085 L155.134,113.455 Z"/></svg></a>
+    <div class="f-cols">
+      <div><h4>Project</h4><a href="#system">System</a><a href="#qualities">Design</a><a href="#uses">Uses</a><a href="#status">Status</a></div>
+      <div><h4>Links</h4><a href="https://github.com/ar3116-sketch" rel="noopener">GitHub</a>
+        <a href="https://ar3116-sketch.github.io" rel="noopener">Personal site</a></div>
+      <div><h4>Contact</h4><span class="who">Advaith Renjith</span>
+        <a id="mail" data-u="ar3116" data-d="scarletmail.rutgers.edu" href="#contact">Email</a>
+        <noscript><span>ar3116 [at] scarletmail [dot] rutgers [dot] edu</span></noscript></div>
+    </div>
+    <p class="copy">&copy; 2026 BLUEBIRD project</p>
+  </footer>
+
+  <script type="module" src="main.js?v=21"></script>
+</body>
+</html>

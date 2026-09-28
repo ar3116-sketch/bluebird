@@ -1,0 +1,103 @@
+{
+ "elevons": {
+  "elevon_upper_R": {
+   "pivot": [
+    0.828,
+    0.0165282,
+    0.290909
+   ],
+   "axis": [
+    -0.9718,
+    -0.0229,
+    -0.2347
+   ],
+   "te_down_sign": -1.0,
+   "range_deg": [
+    -60,
+    50
+   ]
+  },
+  "elevon_lower_R": {
+   "pivot": [
+    0.828,
+    0.0165282,
+    0.290909
+   ],
+   "axis": [
+    -0.9718,
+    -0.0229,
+    -0.2347
+   ],
+   "te_down_sign": -1.0,
+   "range_deg": [
+    -50,
+    60
+   ]
+  },
+  "elevon_upper_L": {
+   "pivot": [
+    -0.828,
+    0.0165282,
+    0.290909
+   ],
+   "axis": [
+    0.9718,
+    -0.0229,
+    -0.2347
+   ],
+   "te_down_sign": 1.0,
+   "range_deg": [
+    -60,
+    50
+   ]
+  },
+  "elevon_lower_L": {
+   "pivot": [
+    -0.828,
+    0.0165282,
+    0.290909
+   ],
+   "axis": [
+    0.9718,
+    -0.0229,
+    -0.2347
+   ],
+   "te_down_sign": 1.0,
+   "range_deg": [
+    -50,
+    60
+   ]
+  }
+ },
+ "prop": {
+  "prop_blade_1": {
+   "pivot": [
+    0.0,
+    0.027,
+    0.262
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "fold_sign": 1.0,
+   "folded_deg": 88.0
+  },
+  "prop_blade_2": {
+   "pivot": [
+    0.0,
+    -0.015,
+    0.262
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "fold_sign": 1.0,
+   "folded_deg": 88.0
+  }
+ },
+ "note": "glTF metres; rotate each pivot node about its axis (right-hand rule)"
+}

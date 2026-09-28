@@ -6,9 +6,10 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { STOPS } from "./tour.js?v=20";
+import { STOPS } from "./tour.js?v=24";
+import { SHOTS, FILM } from "./shots.js?v=33";
 
-const ASSET_VERSION = "6";                                    // bump when the model is rebuilt (cache busting)
+const ASSET_VERSION = "7";                                    // bump when the model is rebuilt (cache busting)
 const canvas = document.getElementById("view");
 const stage = canvas.parentElement;
 const flight = document.getElementById("flight");
@@ -99,8 +100,9 @@ function applyPose(pose) {
   }
   for (const [name, e] of Object.entries(rig.elevons)) {
     const upper = name.includes("upper"), right = name.endsWith("_R");
-    // crow: uppers trailing edge up 51 deg, lowers down 12 deg (DSPOILER_CROW W1 85 / W2 20); roll: right TE up, left TE down
-    const crow = pose.crow * (upper ? -51 : 12);
+    // crow: uppers trailing edge up 30.6 deg, lowers down 18.6 deg (DSPOILER_CROW W1 51 / W2 31, set by the CFD trim study,
+    // docs/crow_trim.md); roll: right TE up, left TE down
+    const crow = pose.crow * (upper ? -30.6 : 18.6);
     const roll = (right ? -1 : 1) * pose.roll;
     let te = THREE.MathUtils.clamp(crow + roll + (pose.pitch ?? 0), e.min, e.max);
     e.node.quaternion.setFromAxisAngle(e.axis, THREE.MathUtils.degToRad(te * e.sign));
@@ -186,6 +188,7 @@ resize();
 // ---------------------------------------------------------------- scroll
 let target = 0, progress = 0;
 const pinned = new URLSearchParams(location.search).get("p");      // ?p=0.5 pins the sequence (thumbnails)
+const recording = new URLSearchParams(location.search).has("rec");   // ?rec: frames are driven by __bluebird.recFrame
 function readScroll() {
   const r = flight.getBoundingClientRect();
   target = clamp01(-r.top / (flight.offsetHeight - window.innerHeight));
@@ -250,8 +253,8 @@ const CTRL_KF = [[0, 0, 0, 0, "Neutral"], [1.0, 0, 0, 0, "Neutral"], [1.8, -20, 
   [2.9, -20, 0, 0, "Pitch up: both halves trailing edge up"], [3.7, 20, 0, 0, "Pitch down: trailing edges down"],
   [4.8, 20, 0, 0, "Pitch down: trailing edges down"], [5.6, 0, 20, 0, "Roll right: right up, left down"],
   [6.7, 0, 20, 0, "Roll right: right up, left down"], [7.5, 0, -20, 0, "Roll left: left up, right down"],
-  [8.6, 0, -20, 0, "Roll left: left up, right down"], [9.5, 0, 0, 1, "Crow airbrake: halves split 51\u00b0 up / 12\u00b0 down"],
-  [11.2, 0, 0, 1, "Crow airbrake: halves split 51\u00b0 up / 12\u00b0 down"], [12.0, 0, 0, 0, "Neutral"]];
+  [8.6, 0, -20, 0, "Roll left: left up, right down"], [9.5, 0, 0, 1, "Crow airbrake: upper halves 31\u00b0 up, lower 19\u00b0 down"],
+  [11.2, 0, 0, 1, "Crow airbrake: upper halves 31\u00b0 up, lower 19\u00b0 down"], [12.0, 0, 0, 0, "Neutral"]];
 function controlsAnim(t) {
   t %= CTRL_KF[CTRL_KF.length - 1][0];
   let k = 0;
@@ -436,7 +439,13 @@ function draw(P, time = clock.elapsedTime) {
   applyXray(st); updateHud(st.hud); updateCard(st);
   renderer.render(scene, camera);
 }
-window.__bluebird = { draw: (p, t) => { resize(); draw(p, t); return p; }, loaded: () => aircraft.children.length > 0, rig,
+window.__bluebird = { draw: (p, t) => { resize(); draw(p, t); return p; },
+  ready: () => X.ready,
+  recFrame: (y, t) => {                                             // video capture: scroll, then render with a given clock
+    window.scrollTo(0, y); readScroll(); progress = target;
+    const r = flight.getBoundingClientRect();
+    if (r.top < window.innerHeight && r.bottom > 0) draw(progress, t);
+    return progress; }, loaded: () => aircraft.children.length > 0, rig,
   renderNow: () => renderer.render(scene, camera), scene, X,
   look: (pos, tgt, fov = 32) => {                                   // debug/inspection: free camera, one frame
     resize(); applyPose(POSES.glide); applyXray({ xray: 0, stop: -1, focus: 0 }); camera.filmOffset = 0; camera.fov = fov; camera.updateProjectionMatrix();
@@ -483,7 +492,7 @@ window.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && controls
 
 let shown = { fold: 88, roll: 0, bank: 0, crow: 0 };
 function frame() {
-  if (pinned !== null) return;                               // pinned mode draws once after load
+  if (pinned !== null || recording) return;                  // pinned/recording modes draw on demand
   requestAnimationFrame(frame);
   if (!webgl) return;
   const dt = Math.min(clock.getDelta(), 0.05);                     // also advances clock.elapsedTime for the demonstrations
@@ -505,9 +514,10 @@ frame();
 const QUALITIES = [
   ["Phone as the brain", "An ordinary Android phone runs the cameras, detection and mission logic. A proven autopilot flies the aircraft and owns every failsafe, so it still lands safely if the phone fails."],
   ["Plans its own landing", "Before takeoff it scores landing sites from open terrain and land-cover data, loads each as an autopilot landing sequence, and notifies the people nearby."],
-  ["Printed, foam, repairable", "A 3D-printed centre body with CNC-cut foam wings. Every part is replaceable in the field; the belly skid is a wear part."],
+  ["Printed, foam, repairable", "A 3D-printed centre body with CNC-cut foam wings. It comes apart into three pieces for transport: each wing slides off its carbon joiner after one bolt and one plug. Every part is replaceable in the field, and the belly skid is a wear part."],
   ["Open and free tools", "Designed end to end with free software: FreeCAD, AeroSandbox, OpenVSP, SU2, CalculiX and ArduPilot."],
 ];
+const Q_SLOTS = ["q-phone", "q-landing", "q-repair", "q-tools"];
 const tabs = [...document.querySelectorAll("[data-tab]")];
 const qualityCard = document.querySelector(".quality"), methodPanel = document.getElementById("method");
 function showQuality(i) {
@@ -519,7 +529,19 @@ function showQuality(i) {
   document.querySelector(".q-idx").textContent = `0${i + 1} / 0${QUALITIES.length}`;
   document.getElementById("q-kicker").textContent = QUALITIES[i][0];
   document.getElementById("q-text").textContent = QUALITIES[i][1];
-  document.getElementById("q-media").dataset.ph = `Render: ${QUALITIES[i][0].toLowerCase()}`;
+  const media = document.getElementById("q-media"), key = Q_SLOTS[i];
+  media.className = "q-media ph"; media.innerHTML = ""; media.onclick = null; media.title = "";
+  if (!fillSlot(media, key)) media.dataset.ph = `Render: ${QUALITIES[i][0].toLowerCase()}`;
+  document.getElementById("q-cap").textContent = SHOTS[key]?.cap ?? "";
+  const thumbs = document.getElementById("q-thumbs"), all = SHOTS[key] ? [SHOTS[key], ...(SHOTS[key].more ?? [])] : [];
+  thumbs.innerHTML = all.length > 1 ? all.map((s, k) => `<button aria-pressed="${k === 0}" aria-label="${s.alt}">` +
+    `<img src="${s.src}.webp" alt="" loading="lazy"></button>`).join("") : "";
+  thumbs.onclick = (ev) => {
+    const b = ev.target.closest("button"); if (!b) return;
+    const k = [...thumbs.children].indexOf(b);
+    fillSlot(media, key, k); document.getElementById("q-cap").textContent = all[k].cap;
+    thumbs.querySelectorAll("button").forEach((x, j) => x.setAttribute("aria-pressed", String(j === k)));
+  };
 }
 tabs.forEach((b, k) => b.addEventListener("click", () => showQuality(k)));
 showQuality(0);
@@ -563,6 +585,28 @@ import(`./method.js?v=${ASSET_VERSION}`).then(({ METHOD }) => {
   }
   steps.addEventListener("click", (ev) => { const b = ev.target.closest("[data-step]"); if (b) show(+b.dataset.step); });
   show(0);
+});
+
+// ---------------------------------------------------------------- finished media into their slots
+function shotHTML(s) {                                                  // hoisted: the Design tabs use it before this point
+  return `<picture><source srcset="${s.src}.webp" type="image/webp"><img src="${s.src}.jpg" alt="${s.alt}" ` +
+    `loading="lazy"></picture><span class="tag">${s.tag}</span>`;
+}
+function fillSlot(el, key, which = 0) {
+  const base = SHOTS[key];
+  if (!base) return false;
+  const s = which ? base.more[which - 1] : base;
+  el.classList.remove("ph"); el.classList.add("shot"); el.innerHTML = shotHTML(s); el.title = s.cap;
+  el.onclick = () => window.open(`${s.src}.jpg`, "_blank", "noopener");
+  return true;
+}
+document.querySelectorAll("[data-slot]").forEach((el) => {
+  const key = el.dataset.slot;
+  if (key === "film" && FILM) {
+    el.classList.remove("ph");
+    el.outerHTML = `<video class="film" controls playsinline preload="none" poster="${FILM.poster}">` +
+      `<source src="${FILM.src}" type="video/mp4"></video>`;
+  } else fillSlot(el, key);
 });
 
 // e-mail assembled at runtime (keeps it out of the static HTML for scrapers)

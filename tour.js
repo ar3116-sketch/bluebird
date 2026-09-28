@@ -6,12 +6,12 @@ export const STOPS = [
   {
     sys: "structure", title: "Structure", dir: [0.2, 0.92, 0.33], color: 0xe9eef3, zoom: 0.78,
     text: "Carbon tubes carry the wing bending into a machined 7075 aluminium node on a printed keel. The outer wings are EPP foam under two layers of iron-on film. The belly landing, not flight, sizes all of it.",
-    specs: [["Outer spar", "14×12 roll-wrapped carbon"], ["Joiner", "12×8 carbon, 7075 V-node"], ["Design load", "84.5 N·m landing vs 31.2 N·m flight"]],
+    specs: [["Outer spar", "14×12 roll-wrapped carbon"], ["Wing joint", "12×8 joiner; wings slide off, 1 bolt + 1 plug each"], ["Design load", "84.5 N·m landing vs 31.2 N·m flight"]],
   },
   {
     sys: "controls", title: "Control surfaces", dir: [0.06, 0.3, 0.95], color: 0x8dc4e6, zoom: 0.8,
     text: "Each elevon is split into an upper and a lower half on one hinge, each with its own servo. Together they pitch and roll the aircraft; opened like a clamshell they become the crow airbrake that steepens the approach.",
-    specs: [["Servos", "4 × EMAX ES08MD II, 2.4 kg·cm"], ["Travel", "±25° pitch/roll; crow 51° up / 12° down"], ["Crow limit", "15 m/s (servo torque)"]],
+    specs: [["Servos", "4 × EMAX ES08MD II, 2.4 kg·cm"], ["Travel", "±25° pitch/roll; crow 31° up / 19° down"], ["Crow limit", "15 m/s (servo torque)"]],
   },
   {
     sys: "compute", title: "Compute", dir: [0.35, 0.85, -0.4], color: 0x7cf2c9,
@@ -41,11 +41,11 @@ export const STOPS = [
   {
     sys: "propulsion", title: "Propulsion", dir: [0.55, 0.42, 0.72], color: 0xa9c1d6,
     text: "A centre pusher keeps the prop out of the cameras' view and away from the belly. The blades swing out by centrifugal force when the motor runs and fold back in the airflow when the braked motor stops.",
-    specs: [["Motor", "T-Motor AT2814, 900 KV"], ["Prop", "11×7 folding, 23 N static"], ["Cruise", "L/D 11.4 at 14 m/s, ~61 km range"]],
+    specs: [["Motor", "T-Motor AT2814, 900 KV"], ["Prop", "11×7 folding, 23 N static"], ["Cruise", "L/D 11.7 at 14 m/s, ~58 km range"]],
   },
   {
     sys: "landing", title: "Launch + landing", dir: [0.82, -0.3, 0.35], color: 0x5fd3a0,
-    text: "The aircraft lands on a deep, replaceable TPU skid sled that holds the landing load to 50 g. Printed cones in the belly seat it on the launch dolly, which it simply flies off at 11.2 m/s.",
-    specs: [["Skid", "TPU-95A sled, 50 g design load"], ["Touchdown", "0.93 m/s nominal sink, 60 m sites"], ["Launch", "passive dolly or hand / bungee"]],
+    text: "The aircraft lands on a deep, replaceable TPU skid sled that holds the landing load to 50 g. Printed cones in the belly seat it on the launch dolly, which it simply flies off at about 11.4 m/s.",
+    specs: [["Skid", "TPU-95A sled, 50 g design load"], ["Touchdown", "13 m/s approach, ~1 m/s sink, 60 m sites"], ["Launch", "passive dolly or hand / bungee"]],
   },
 ];

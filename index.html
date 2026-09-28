@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=18">
+  <link rel="stylesheet" href="style.css?v=33">
   <script type="importmap">
     { "imports": {
         "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
@@ -70,7 +70,7 @@
     <div class="cards">
       <article class="card">
         <h3>BLUEBIRD</h3>
-        <div class="media ph" data-ph="Render: aircraft"></div>
+        <div data-slot="card-aircraft" class="media ph" data-ph="Render: aircraft"></div>
         <dl>
           <div><dt>Span</dt><dd>1.8 m</dd></div>
           <div><dt>Cruise</dt><dd>14 m/s</dd></div>
@@ -79,7 +79,7 @@
       </article>
       <article class="card">
         <h3>Phone brain</h3>
-        <div class="media ph" data-ph="Render: phone bay"></div>
+        <div data-slot="card-phonebay" class="media ph" data-ph="Render: phone bay"></div>
         <dl>
           <div><dt>Computer</dt><dd>Android phone</dd></div>
           <div><dt>Cameras</dt><dd>12 MP RGB + thermal</dd></div>
@@ -88,7 +88,7 @@
       </article>
       <article class="card">
         <h3>Ground planner</h3>
-        <div class="media ph" data-ph="Screenshot: landing-site map"></div>
+        <div data-slot="card-planner" class="media ph" data-ph="Screenshot: landing-site map"></div>
         <dl>
           <div><dt>Input</dt><dd>Open terrain data</dd></div>
           <div><dt>Output</dt><dd>Mission + landing sites</dd></div>
@@ -97,7 +97,7 @@
       </article>
       <article class="card">
         <h3>Launch dolly</h3>
-        <div class="media ph" data-ph="Render: dolly"></div>
+        <div data-slot="card-dolly" class="media ph" data-ph="Render: dolly"></div>
         <dl>
           <div><dt>Release</dt><dd>Passive, by lift</dd></div>
           <div><dt>Crosswind</dt><dd>Up to 3 m/s</dd></div>
@@ -132,7 +132,7 @@
         <span class="q-kicker" id="q-kicker">Phone as the brain</span>
         <p id="q-text"></p>
       </div>
-      <div class="q-media ph" id="q-media" data-ph="Render"></div>
+      <div class="q-side"><div class="q-media ph" id="q-media" data-ph="Render"></div><div class="m-thumbs q-thumbs" id="q-thumbs"></div><p class="q-cap" id="q-cap"></p></div>
     </div>
 
     <!-- methodology: how each design decision was reached (filled from METHOD in main.js) -->
@@ -166,13 +166,13 @@
     <div class="uses">
       <article class="use">
         <h3>Conservation</h3>
-        <div class="media ph tall" data-ph="Render or photo: wildlife survey"></div>
+        <div data-slot="use-conservation" class="media ph tall" data-ph="Render or photo: wildlife survey"></div>
         <p>Thermal and RGB surveys of wildlife over large, remote areas, with animal detection on board and landing sites
           chosen ahead of time.</p>
       </article>
       <article class="use">
         <h3>Agriculture</h3>
-        <div class="media ph tall" data-ph="Render or photo: crop survey"></div>
+        <div data-slot="use-agriculture" class="media ph tall" data-ph="Render or photo: crop survey"></div>
         <p>Low-cost mapping of fields and pasture, repairable in the field and cheap enough for farms and data-scarce
           regions.</p>
       </article>
@@ -182,13 +182,15 @@
   <!-- ============================== film ============================== -->
   <section class="wrap section">
     <h2 class="h2">Launch, survey, land, repeat</h2>
-    <div class="film ph" data-ph="Video coming soon"></div>
+    <div data-slot="film" class="film ph" data-ph="Video coming soon"></div>
+    <p class="film-cap">Render. A 58-second film of a BLUEBIRD mission, built from the project's CAD, simulations and planner output. Not flight footage.</p>
   </section>
 
   <!-- ============================= status ============================= -->
   <section id="status" class="wrap section status">
     <div class="sys-online"><span class="dot"></span>Status</div>
     <p class="status-line">Designed, simulated and analysed. First build next.</p>
+    <div data-slot="status-wide" class="media ph wide" data-ph="Render: ground station"></div>
   </section>
 
   <!-- ============================= footer ============================= -->
@@ -205,6 +207,6 @@
     <p class="copy">&copy; 2026 BLUEBIRD project</p>
   </footer>
 
-  <script type="module" src="main.js?v=21"></script>
+  <script type="module" src="main.js?v=33"></script>
 </body>
 </html>

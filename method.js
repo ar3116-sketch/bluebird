@@ -1,5 +1,6 @@
-// Methodology panel content: one entry per design decision. Every number comes from the white paper
-// (docs/whitepaper), which cites the repo file behind it. trade.win = index of the adopted row (-1: none).
+// Methodology panel content: one entry per design decision. The white paper
+// (docs/whitepaper) documents the baseline. Structures also records the ongoing
+// 2026-09-30 joint study; it is not an accepted design. trade.win = adopted row (-1: none).
 // figs: [file in assets/method/, caption]. sec: white-paper section title.
 export const METHOD = [
   {
@@ -92,17 +93,17 @@ export const METHOD = [
   },
   {
     step: "Structures",
-    decision: "Size the structure for the belly landing, not for flight.",
-    why: "The worst flight case, a rolling pull-up, puts 31.2 N·m on the wing root; the landing puts 84.5 N·m. The first skid gave 117 g at the CG in a 3 m/s abuse landing. A deeper TPU sled with nothing rigid near its wear face brought the design load to 50 g. The landing then forced a thicker joiner and a machined spar node, redesigned through three rounds of FEA.",
-    trade: { cols: ["Part", "First design", "Final"], win: -1, rows: [
-      ["Skid", "as built: 117 g at CG", "deep sled: 50 g"],
-      ["Joiner tube", "12×10: RF 0.67", "12×8: RF 1.03"],
-      ["Spar node", "PETG-CF box: SF 0.41", "7075 node v3: SF 1.50"],
-      ["Node to keel", "tab + inserts: SF 0.53", "web + M3 8.8 through-bolts"]] },
-    method: "V–n diagram with a 7.6 m/s UAS gust; vortex-lattice spanloads; beam models; gmsh + CalculiX FEA checked against hand solutions to within 1.04 %; landing-impact model by body station.",
-    stats: [["84.5", "N·m", "landing root bending"], ["31.2", "N·m", "worst flight case"], ["50", "g", "design landing load at CG"]],
-    figs: [["struct_landing_g.webp", "Ultimate landing load by body station for the as-built skid, a thin-wall skid and the deep sled."],
-           ["struct_node_fea.webp", "CalculiX FEA of the 7075 spar node v3 under the landing transient."],
+    decision: "Design the spar joint around the belly-landing load.",
+    why: "The current landing model applies a brief 50 g acceleration at the centre body and transfers the wings' inertia into bending and twist at the spar joint. This is a design assumption awaiting impact-test validation. A thicker carbon joiner and machined aluminium node improve the initial design, but the latest detailed joint study still falls short of its stress and safety-factor targets. No joint variant has been accepted.",
+    trade: { cols: ["Part", "Earlier study", "Current status"], win: -1, rows: [
+      ["Skid", "117 g predicted at CG", "50 g design input; impact test needed"],
+      ["Joiner tube", "12×10: RF 0.67", "12×8 trial: 640 MPa; provisional limit 600 MPa"],
+      ["Spar node", "PETG-CF box: SF 0.41", "7075 trial: SF 1.17; target 1.20"],
+      ["Joint interfaces", "ideal bonded model", "stock properties, adhesive and slip unqualified"]] },
+    method: "Dynamic wing-beam response supplies section forces and moments to a detailed gmsh + CalculiX joint model. The numbers above describe the best paired experimental screen, not an approved production joint. Carbon is still represented by an isotropic equivalent; laminate properties, bond behaviour and mesh convergence remain open. Physical testing is required.",
+    stats: [["78", "N·m", "design bending at the joint cut"], ["50", "g", "assumed landing acceleration"], ["1.20", "", "required node safety factor"]],
+    figs: [["struct_landing_g.webp", "Earlier impact-model comparison of skid geometries; predicted accelerations await physical validation."],
+           ["struct_node_fea.webp", "Earlier spar-node FEA illustration; it does not show acceptance of the current joint study."],
            ["struct_vn.webp", "V–n diagram: the +5.6 / −3.5 design envelope."]],
     sec: "Structures and materials",
   },
@@ -150,17 +151,19 @@ export const METHOD = [
   {
     step: "Verification",
     decision: "Prove the safety logic in simulation now; prove the physics on the first airframe.",
-    why: "The landing-site and phone-loss failsafes run end to end in ArduPilot software-in-the-loop with the aircraft's own parameters and a simulated flare lidar: a return-to-launch goes to the nearest site, the phone can divert, a go-around on final lands at the other site, losing the phone never interrupts the flight, and the autopilot refuses to arm without a ground-station link. Automated audits of the CAD solids check whether each part prints and each unit can be serviced, and list the fixes. The first build follows a staged test plan, and the stall is checked in flight before anything below 10 m/s is trusted.",
+    why: "The landing-site, phone-loss and preflight logic run end to end in ArduPilot software-in-the-loop with the aircraft's own parameters and a simulated flare lidar. A return-to-launch goes to the nearest site, the phone can divert, and a go-around on final lands at the other site. The autopilot itself refuses to arm until the ground-station link is up, the launch method is set, the aircraft sits correctly on the dolly and the phone's preflight checklist (battery notch, CG stand, hatch, phone battery) is complete. If the phone is lost in flight, the cameras go with it, so the autopilot ends the survey at the nearest vetted site after 60 s. Automated audits of the CAD solids check whether each part prints and each unit can be serviced, and list the fixes. The first build follows a staged test plan, and the stall is checked in flight before anything below 10 m/s is trusted.",
     trade: { cols: ["SITL test", "Result"], win: -1, rows: [
       ["Failsafe goes to the nearest site", "landed 25 m from the aim point; crow opened"],
-      ["Phone diverts on approach", "landed 27 m from the other site"],
-      ["Go-around on final, then divert", "climbed out, landed 29 m from the other site"],
-      ["Phone lost, ground link up", "kept flying the survey; no failsafe needed"],
-      ["Phone and ground link lost", "failsafe after 19 s; landed 27 m from the nearest site"],
-      ["No ground link at arming", "arming refused by the autopilot"],
-      ["Mission change in plain RTL", "firmware quirk documented and handled"]] },
-    method: "ArduPlane 4.7.1 SITL driven by pytest over MAVLink, with the phone and ground station on their own links; unit tests for the planner and the phone app; DFM and service audits on the exported CAD.",
-    stats: [["9/9", "", "SITL tests"], ["57", "", "ground-software tests"], ["142", "", "phone-app tests"]],
+      ["Phone diverts on approach", "landed 26 m from the other site"],
+      ["Go-around on final, then divert", "climbed out, landed 30 m from the other site"],
+      ["Phone lost, ground link up", "ended the survey after 60 s; landed 26 m from the nearest site"],
+      ["Phone and ground link lost", "failsafe after 20 s; landed 27 m from the nearest site"],
+      ["Phone battery low", "phone ended the mission; landed 26 m from the nearest site"],
+      ["Phone checklist incomplete", "arming refused by the autopilot"],
+      ["Not seated on the dolly", "arming refused by the autopilot"],
+      ["No ground link at arming", "arming refused by the autopilot"]] },
+    method: "ArduPlane 4.7.1 SITL driven by pytest over MAVLink, with the phone and ground station on their own links and two flight-controller Lua scripts for the arming gates and the phone-lost rule; unit tests for the planner and the phone app; DFM and service audits on the exported CAD.",
+    stats: [["15/15", "", "SITL tests"], ["59", "", "ground-software tests"], ["169", "", "phone-app tests"]],
     figs: [],
     sec: "Verification status and test plan",
   },

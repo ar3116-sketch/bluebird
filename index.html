@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=34">
+  <link rel="stylesheet" href="style.css?v=41">
   <script type="importmap">
     { "imports": {
         "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
@@ -56,10 +56,13 @@
         <dl class="tc-specs"></dl>
       </aside>
       <a class="skip" href="#system" hidden>Skip the tour &darr;</a>
+      <div class="tour-actions" hidden><button type="button">Overview</button><select aria-label="Jump to a subsystem"></select></div>
       <ul class="tour-legend" aria-label="Subsystem colours" style="visibility:hidden"></ul>
       <div class="viewer-bar" hidden>
         <button data-pose="glide">Glide</button><button data-pose="cruise">Cruise</button>
         <button data-pose="airbrake">Airbrake</button>
+        <button data-explode aria-pressed="false">Explode</button>
+        <button data-inspect aria-pressed="false">Subsystems</button>
         <button class="close" data-close>Close</button>
       </div>
     </div>
@@ -113,7 +116,7 @@
     <div class="sys-online"><span class="dot"></span>System online</div>
     <div class="cta-row">
       <p>Explore the aircraft. Open the airbrake. See the full system.</p>
-      <button id="launch-viewer" class="btn">Launch interactive view</button>
+      <button id="launch-viewer" class="btn" disabled>Loading interactive model…</button>
     </div>
   </section>
 
@@ -184,7 +187,8 @@
   <section class="wrap section">
     <h2 class="h2">Launch, survey, land, repeat</h2>
     <div data-slot="film" class="film ph" data-ph="Video coming soon"></div>
-    <p class="film-cap">Render. A 58-second film of a BLUEBIRD mission, built from the project's CAD, simulations and planner output. Not flight footage.</p>
+    <p class="film-cap">Render. A 61-second film of a BLUEBIRD mission, built from the project's CAD, simulations and planner output. Not flight footage.</p>
+
   </section>
 
   <!-- ============================= status ============================= -->
@@ -243,6 +247,6 @@
     <p class="copy">&copy; 2026 BLUEBIRD project</p>
   </footer>
 
-  <script type="module" src="main.js?v=34"></script>
+  <script type="module" src="main.js?v=49"></script>
 </body>
 </html>

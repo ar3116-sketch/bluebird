@@ -6,10 +6,11 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { createSubsystemFilter } from "./subsystems.js?v=1";
 import { STOPS } from "./tour.js?v=24";
-import { SHOTS, FILM } from "./shots.js?v=34";
+import { SHOTS, FILM } from "./shots.js?v=43";
 
-const ASSET_VERSION = "8";                                    // bump when the model is rebuilt (cache busting)
+const ASSET_VERSION = "11";                                    // bump when the model is rebuilt (cache busting)
 const canvas = document.getElementById("view");
 const stage = canvas.parentElement;
 const flight = document.getElementById("flight");
@@ -20,7 +21,7 @@ const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").match
 
 // scroll timeline, in vh of scroll: the flight sequence, then the x-ray tour (skin fades, the camera visits each
 // subsystem in tour.js and pulls back out before the next), then the skin returns
-const FLIGHT_VH = 320, INTRO_VH = 170, STOP_VH = 170, OUTRO_VH = 80;
+const FLIGHT_VH = 320, INTRO_VH = 300, STOP_VH = 125, OUTRO_VH = 80;
 const SCROLL_VH = FLIGHT_VH + INTRO_VH + STOPS.length * STOP_VH + OUTRO_VH;
 flight.style.height = `${SCROLL_VH + 100}vh`;
 
@@ -34,7 +35,7 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true 
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.95;
+renderer.toneMappingExposure = 0.88;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;           // PCF honours shadow.radius (soft edges)
 renderer.setClearColor(0x000000, 0);                          // the stage's CSS supplies the black
@@ -45,8 +46,8 @@ renderer.setClearColor(0x000000, 0);                          // the stage's CSS
 const scene = new THREE.Scene();
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-scene.environmentIntensity = 0.18;                            // soft reflections: gives the white skin its shape
-const key = new THREE.SpotLight(0xfff3e6, 34, 16, THREE.MathUtils.degToRad(28), 0.75, 1.2);
+scene.environmentIntensity = 0.38;                            // soft reflections: gives the white skin its shape
+const key = new THREE.SpotLight(0xfff3e6, 24, 16, THREE.MathUtils.degToRad(28), 0.75, 1.2);
 key.position.set(-3.0, 2.6, -1.4);
 key.castShadow = true;
 key.shadow.mapSize.set(4096, 4096);
@@ -54,8 +55,8 @@ key.shadow.camera.near = 1.5; key.shadow.camera.far = 7;
 key.shadow.bias = -0.0002;
 key.shadow.normalBias = 0.025;                               // no acne/sawtooth on the curved skin
 key.shadow.radius = 4;
-const rim = new THREE.DirectionalLight(0xd6ecff, 3.2);
-const rim2 = new THREE.DirectionalLight(0x7fbde8, 1.6);
+const rim = new THREE.DirectionalLight(0xd6ecff, 1.9);
+const rim2 = new THREE.DirectionalLight(0x7fbde8, 0.9);
 const camFill = new THREE.DirectionalLight(0xe8f2ff, 0.7);   // from just above-left of the camera
 const fill = new THREE.HemisphereLight(0x9cc4e4, 0x1a2430, 0.22);
 scene.add(key, key.target, rim, rim.target, rim2, rim2.target, camFill, camFill.target, fill);
@@ -119,16 +120,35 @@ const skins = { closed: [], cut: [] };
 // x-ray state: skin materials fade, edge lines trace the outer mould line, internals (bluebird_inside.glb) light up
 // by subsystem. Appendages of the main model join the subsystem they belong to.
 const APP_SYS = [[/^prop_|^motor$/, "propulsion"], [/^sled_|^skeg$/, "landing"], [/^cam_guard_|^pitot$/, "sensors"],
-  [/^fin_plate_|^tip_rib_/, "structure"], [/^elevon_/, "controls"]];
+  [/^fin_|^tip_rib_/, "structure"], [/^elevon_/, "controls"]];
 const X = { ready: false, skinMats: [], elevonMats: [], appMats: {}, app: {}, edges: [], casters: [], inside: null,
   sysMats: {}, base: {}, accent: {}, stopViews: [],
   edgeMat: new THREE.LineBasicMaterial({ color: 0x8dc4e6, transparent: true, opacity: 0, depthWrite: false }) };
 for (const st of STOPS) X.accent[st.sys] = new THREE.Color(st.color);
-X.accent.foam = X.accent.structure;
+X.accent.foam = X.accent.structure; X.accent.shell = X.accent.structure;
+const subsystemFilter = createSubsystemFilter({ stage, stops: STOPS, openInspection, isolateSubsystem });
+let isolatedSystem = null;
+const isolationVisibility = new Map();
+function restoreIsolationVisibility() {
+  for (const [node, visible] of isolationVisibility) node.visible = visible;
+  isolationVisibility.clear();
+}
+function applyIsolation() {
+  if (!isolatedSystem) return;
+  beams.visible = false;
+  aircraft.traverse(node => {
+    if (!node.isMesh && !node.isLineSegments) return;
+    isolationVisibility.set(node, node.visible);
+    node.visible = node.visible && node.userData.subsystem === isolatedSystem;
+    if (node.visible) for (const m of Array.isArray(node.material) ? node.material : [node.material]) {
+      m.opacity = 1; m.transparent = false; m.depthWrite = true;
+    }
+  });
+}
 const BLACK = new THREE.Color(0);
 function applyXray(st) {
   const x = st.xray, cur = st.stop >= 0 ? STOPS[st.stop].sys : null, f = st.focus;
-  const skinOp = 1 - 0.9 * x;
+  const skinOp = (1 - 0.94 * x) * (1 - 0.8 * (st.explode ?? 0));
   for (const m of X.skinMats) { m.transparent = x > 0.001; m.opacity = skinOp; m.depthWrite = x < 0.35; }
   for (const m of X.elevonMats) {
     const up = cur === "controls" ? 0.92 * f : 0;
@@ -148,11 +168,38 @@ function applyXray(st) {
       const mix = on ? 0.7 + 0.3 * f : 0.7 * (1 - (cur ? f : 0));     // overview: every module in its colour
       m.color.copy(X.base[sys]).lerp(X.accent[sys] ?? X.base[sys], mix);
       m.emissive.copy(X.accent[sys] ?? BLACK).multiplyScalar(on ? 0.28 * f : 0);
-      const op = x * (sys === "foam" ? 0.07 + (on ? 0.2 * f : 0) : 1 - (cur && !on ? 0.88 * f : 0));
+      const op = x * (sys === "shell" ? 0.025 + 0.4 * (st.explode ?? 0) : sys === "foam" ? 0.05 + 0.13 * (st.explode ?? 0) + (on ? 0.12 * f : 0) : 1 - (cur && !on ? 0.88 * f : 0));
       m.opacity = op; m.transparent = op < 0.999; m.depthWrite = op > 0.6 && sys !== "foam";
     }
   }
   for (const o of X.casters) o.castShadow = x < 0.3;
+}
+
+const exploded = [];
+let explosionAmount = 0;
+function initExploded() {
+  aircraft.updateMatrixWorld(true);
+  aircraft.traverse(o => {
+    if (!o.isMesh || o.name.startsWith("skin_") || o.name.startsWith("prop_")) return;
+    const box = new THREE.Box3().setFromObject(o), c = box.getCenter(new THREE.Vector3());
+    const sys = o.name.match(/^x_([a-z]+)__/)?.[1];
+    const delta = new THREE.Vector3();
+    if (Math.abs(c.x) > 0.20) delta.x = Math.sign(c.x) * 0.22;
+    else if (sys === "shell") {
+      if (/hatch|cover/.test(o.name)) delta.y = 0.32;
+      else { delta.x = Math.sign(c.x || 1) * 0.16; delta.y = 0.06; }
+    } else if (sys === "compute") delta.y = /phone/.test(o.name) ? 0.25 : 0.15;
+    else if (sys === "power") delta.y = /battery|pack/.test(o.name) ? 0.095 : -0.08;
+    else if (sys === "sensors") { delta.z = -0.12; delta.y = -0.10; }
+    else if (sys === "comms" || sys === "compliance") { delta.x = Math.sign(c.x || 1) * 0.15; delta.y = 0.16; }
+    else if (sys === "landing" || /^sled_|^skeg$/.test(o.name)) delta.y = -0.15;
+    else if (sys === "propulsion" || o.name === "motor") delta.z = 0.10;
+    exploded.push({ node: o, base: o.position.clone(), delta });
+  });
+}
+function applyExploded(amount) {
+  explosionAmount = amount;
+  for (const e of exploded) e.node.position.copy(e.base).addScaledVector(e.delta, amount);
 }
 
 // ---------------------------------------------------------------- camera path
@@ -173,7 +220,7 @@ function cameraAt(p) {
 function fitDistance() {                                   // fits the 1.88 m span (fins) plus margin in either orientation
   const span = 2.3, vFov = THREE.MathUtils.degToRad(camera.fov);
   const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
-  return (span / 2) / Math.tan(Math.min(hFov, vFov * 1.6) / 2);
+  return (span / 2) / Math.tan(Math.min(hFov, vFov * 1.12) / 2);
 }
 function resize() {
   const w = canvas.clientWidth, h = canvas.clientHeight;
@@ -204,9 +251,9 @@ function flightCam(pf) {
   return camState(look.clone().add(dir.multiplyScalar(dist * fitDistance())), look, up);
 }
 const OV_DIR = V3(-0.55, 0.72, -0.42).normalize();
-function overviewCam() {
+function overviewCam(explode = 0) {
   const look = V3(0, 0, 0.03);
-  return camState(look.clone().addScaledVector(OV_DIR, 0.86 * fitDistance()), look, V3(0, 1, 0));
+  return camState(look.clone().addScaledVector(OV_DIR, (0.96 + 0.20 * explode) * fitDistance()), look, V3(0, 1, 0));
 }
 function stopCam(i) {
   const v = X.stopViews[i];
@@ -229,16 +276,18 @@ function stateAt(P) {
   const n = pad2(STOPS.length);
   if (t < INTRO_VH) {                                                  // fade to x-ray, then hold on the colour-coded overview
     const a = seg(t, 0, INTRO_VH * 0.55);
-    return { pose: { fold: 88, roll: 0, bank: 0, crow: 1 - a }, cam: lerpCam(flightCam(1), overviewCam(), a),
+    return { pose: { fold: 88, roll: 0, bank: 0, crow: 1 - a }, cam: lerpCam(flightCam(1), overviewCam(seg(t, INTRO_VH * 0.35, INTRO_VH * 0.65)), a),
+             explode: seg(t, INTRO_VH * 0.35, INTRO_VH * 0.65),
              xray: seg(t, 0, INTRO_VH * 0.4), stop: -1, focus: 0, act: 0, card: 0, legend: seg(t, INTRO_VH * 0.45, INTRO_VH * 0.62),
-             hud: ["00", n, "Inside BLUEBIRD"] };
+             hud: ["00", n, t > INTRO_VH * 0.45 ? "Exploded overview · select a system or scroll" : "Inside BLUEBIRD · select a system or scroll"] };
   }
   t -= INTRO_VH;
   if (t < STOPS.length * STOP_VH) {
     const i = Math.floor(t / STOP_VH), s = (t - i * STOP_VH) / STOP_VH, st = STOPS[i];
     const focus = seg(s, 0, 0.3) * (1 - seg(s, 0.76, 1));
     const act = seg(s, 0.2, 0.34) * (1 - seg(s, 0.72, 0.86));          // demonstrations run while in focus (see draw)
-    return { pose: { fold: 88, roll: 0, bank: 0, crow: 0 }, cam: lerpCam(overviewCam(), stopCam(i), focus), xray: 1, stop: i,
+    return { pose: { fold: 88, roll: 0, bank: 0, crow: 0 }, cam: lerpCam(overviewCam(i === 0 ? 1 - seg(s, 0, 0.25) : 0), stopCam(i), focus), xray: 1, stop: i,
+             explode: i === 0 ? 1 - seg(s, 0, 0.25) : 0,
              focus, act, card: seg(s, 0.18, 0.3) * (1 - seg(s, 0.72, 0.84)), legend: i === 0 ? 1 - seg(s, 0, 0.15) : 0,
              hud: [pad2(i + 1), n, `Inside \u00b7 ${st.title}`] };
   }
@@ -328,11 +377,25 @@ function updateCard(st) {
   card.style.opacity = st.card;
   card.style.visibility = st.card > 0.01 ? "visible" : "hidden";
   card.style.setProperty("--lift", `${(1 - st.card) * 14}px`);
-  skip.hidden = !(st.xray > 0.5 && st.stop >= 0);
+  skip.hidden = !(st.xray > 0.15);
+  tourActions.hidden = !(st.xray > 0.15);
+  tourActions.querySelector("select").value = st.stop < 0 ? "" : String(st.stop);
 }
 const skip = stage.querySelector(".skip");
 const legend = stage.querySelector(".tour-legend");
-legend.innerHTML = STOPS.map((s) => `<li><i style="background:#${new THREE.Color(s.color).getHexString()}"></i>${s.title}</li>`).join("");
+const tourActions = stage.querySelector(".tour-actions");
+tourActions.querySelector("select").innerHTML = '<option value="">Choose a subsystem</option>' + STOPS.map((s,i) => `<option value="${i}">${s.title}</option>`).join("");
+function jumpToTour(i = -1) {
+  if (controls) closeViewer();
+  const vh = FLIGHT_VH + (i < 0 ? INTRO_VH * 0.8 : INTRO_VH + (i + 0.45) * STOP_VH);
+  const y = flight.getBoundingClientRect().top + scrollY + vh * innerHeight / 100;
+  window.scrollTo({ top: y, behavior: reduceMotion ? "instant" : "smooth" });
+}
+tourActions.querySelector("select").addEventListener("change", ev => { if (ev.target.value !== "") jumpToTour(Number(ev.target.value)); });
+tourActions.querySelector("button").addEventListener("click", () => jumpToTour());
+legend.innerHTML = STOPS.map((s) => `<li><button type="button" data-system="${s.sys}"><i style="background:#${new THREE.Color(s.color).getHexString()}"></i>${s.title}</button></li>`).join("");
+
+legend.addEventListener("click", ev => { const b = ev.target.closest("[data-system]"); if (b) subsystemFilter.showSubsystem(b.dataset.system); });
 
 // ---------------------------------------------------------------- model + rig
 Promise.all([
@@ -362,6 +425,7 @@ Promise.all([
   gltf.scene.traverse((o) => {
     if (!o.isMesh) return;
     const name = o.name, sys = APP_SYS.find(([re]) => re.test(name))?.[1];
+    if (sys) subsystemFilter.register(o, sys);
     if (/^(skin_|fin_[RL]_)/.test(name)) {
       X.skinMats.push(o.material); X.casters.push(o);
       if (/^skin_top|^skin_bottom|^fin_[RL]_/.test(name)) {
@@ -388,6 +452,7 @@ Promise.all([
     if (!o.isMesh) return;
     o.castShadow = false; o.receiveShadow = true;
     const sys = o.name.match(/^x_([a-z]+)__/)?.[1];
+    if (sys) subsystemFilter.register(o, sys === "shell" ? "structure" : sys);
     if (sys && !X.sysMats[sys]) {
       const m = o.material; m.side = THREE.DoubleSide; m.transparent = true;
       X.sysMats[sys] = m; X.base[sys] = m.color.clone();
@@ -403,8 +468,13 @@ Promise.all([
     const sphere = box.getBoundingSphere(new THREE.Sphere());
     X.stopViews[i] = { center: sphere.center, radius: sphere.radius, dir: V3(...st.dir).normalize(), minDist: st.minDist ?? 0.3, zoom: st.zoom ?? 1 };
   });
-  X.ready = true;
+  initExploded(); X.ready = true;
+  const launch = document.getElementById("launch-viewer");
+  launch.disabled = false; launch.textContent = "Launch interactive view";
   if (pinned !== null) requestAnimationFrame(() => { draw(progress); document.title = "ready2"; });
+}).catch(error => {
+  console.error("Aircraft model failed to load", error);
+  const launch = document.getElementById("launch-viewer"); launch.textContent = "Model unavailable — reload to retry";
 });
 
 function draw(P, time = clock.elapsedTime) {
@@ -426,7 +496,7 @@ function draw(P, time = clock.elapsedTime) {
   }
   card.querySelector(".tc-mode").textContent = mode;
   legend.style.opacity = st.legend; legend.style.visibility = st.legend > 0.01 ? "visible" : "hidden";
-  applyPose(st.pose);
+  restoreIsolationVisibility(); applyPose(st.pose); applyExploded(st.explode ?? 0);
   camera.position.copy(st.cam.pos); camera.up.copy(st.cam.up);
   const look = st.cam.look.clone();
   if (camera.aspect < 0.9 && st.focus > 0) {                            // portrait: lift the subsystem above the card
@@ -434,19 +504,21 @@ function draw(P, time = clock.elapsedTime) {
     look.addScaledVector(st.cam.up, -0.45 * st.focus * d);
   }
   camera.lookAt(look); placeRim();
-  camera.filmOffset = (camera.aspect > 1.15 ? -5.5 : 0) * st.focus;       // landscape: push the subsystem clear of the card
+  camera.filmOffset = (camera.aspect > 1.15 ? -5.5 : 0) * st.focus + (camera.aspect > 1.15 ? 3.6 * st.legend : 0);       // landscape: push the subsystem clear of the card
   camera.updateProjectionMatrix();
   applyXray(st); updateHud(st.hud); updateCard(st);
   renderer.render(scene, camera);
 }
 window.__bluebird = { draw: (p, t) => { resize(); draw(p, t); return p; },
   ready: () => X.ready,
+  renderState: () => ({ frames: renderer.info.render.frame, visible: flightVisible, hidden: document.hidden, viewer: !!controls }),
+  isolatedSystem: () => isolatedSystem,
   recFrame: (y, t) => {                                             // video capture: scroll, then render with a given clock
     window.scrollTo(0, y); readScroll(); progress = target;
     const r = flight.getBoundingClientRect();
     if (r.top < window.innerHeight && r.bottom > 0) draw(progress, t);
     return progress; }, loaded: () => aircraft.children.length > 0, rig,
-  renderNow: () => renderer.render(scene, camera), scene, X,
+  renderNow: () => renderer.render(scene, camera), scene, X, systems: subsystemFilter, camera, aircraft,
   look: (pos, tgt, fov = 32) => {                                   // debug/inspection: free camera, one frame
     resize(); applyPose(POSES.glide); applyXray({ xray: 0, stop: -1, focus: 0 }); camera.filmOffset = 0; camera.fov = fov; camera.updateProjectionMatrix();
     camera.up.set(0, 1, 0); camera.position.set(...pos); camera.lookAt(...tgt); placeRim();
@@ -454,28 +526,68 @@ window.__bluebird = { draw: (p, t) => { resize(); draw(p, t); return p; },
 
 // ---------------------------------------------------------------- interactive viewer (same scene, orbit controls)
 const bar = stage.querySelector(".viewer-bar");
-let controls = null, viewerPose = null;
-function openViewer() {
-  stage.classList.add("viewer");
-  bar.hidden = false;
-  document.body.style.overflow = "hidden";
-  resize();
-  applyXray({ xray: 0, stop: -1, focus: 0 }); card.style.visibility = "hidden"; skip.hidden = true;
+let controls = null, viewerPose = null, viewerXray = false, viewerExploded = false, returnFocus = null;
+function openViewer({ inspect = false, keepCamera = false } = {}) {
+  if (controls) { if (inspect) setInspection(true); return; }
+  returnFocus = document.activeElement;
+  const target = new THREE.Vector3(); camera.getWorldDirection(target).multiplyScalar(camera.position.length()).add(camera.position);
+  stage.classList.add("viewer"); bar.hidden = false; document.body.style.overflow = "hidden"; resize();
+  card.style.visibility = "hidden"; skip.hidden = true; tourActions.hidden = true; legend.style.visibility = "hidden"; beams.visible = false;
   camera.filmOffset = 0; camera.updateProjectionMatrix();
-  controls = new OrbitControls(camera, canvas);
-  controls.target.set(0, 0, 0);
-  controls.enableDamping = true;
-  controls.minDistance = 0.8; controls.maxDistance = 6;
+  controls = new OrbitControls(camera, canvas); controls.enableDamping = true;
+  controls.minDistance = 0.08; controls.maxDistance = 6;
   camera.up.set(0, 1, 0);
-  camera.position.set(1.6, 0.9, -1.6);
-  setPose("cruise");
+  if (keepCamera) controls.target.copy(target);
+  else { controls.target.set(0, 0, 0); camera.position.set(1.6, 0.9, -1.6); }
+  setPose(inspect ? "glide" : "cruise"); setExploded(false); setInspection(inspect);
+  bar.querySelector("[data-inspect]").focus({ preventScroll: true });
+}
+function setInspection(enabled) {
+  viewerXray = enabled; subsystemFilter.setActive(enabled);
+  stage.classList.toggle("showing-systems", enabled); resize();
+  if (!enabled) { isolatedSystem = null; restoreIsolationVisibility(); setExploded(false); }
+  bar.querySelector("[data-inspect]").setAttribute("aria-pressed", String(enabled));
+  applyXray({ xray: enabled ? 1 : 0, stop: -1, focus: 0 });
+  updateHud(["", "", enabled ? "Choose a subsystem · drag to orbit · scroll to zoom" : "Drag to orbit · scroll to zoom"]);
+}
+function openInspection() { openViewer({ inspect: true, keepCamera: true }); }
+function isolateSubsystem(sys) {
+  restoreIsolationVisibility(); isolatedSystem = sys;
+  if (sys === "controls") { setExploded(false); setPose("airbrake"); }
+  if (sys === "propulsion") { setExploded(false); setPose("cruise"); }
+  applyPose(viewerPose); applyExploded(viewerExploded ? 1 : 0);
+  applyXray({ xray: 1, stop: sys ? STOPS.findIndex(s => s.sys === sys) : -1, focus: sys ? 1 : 0, explode: explosionAmount });
+  applyIsolation(); aircraft.updateMatrixWorld(true);
+  if (sys) {
+    const box = new THREE.Box3();
+    aircraft.traverse(o => { if (o.isMesh && o.visible && o.userData.subsystem === sys) box.union(new THREE.Box3().setFromObject(o)); });
+    if (!box.isEmpty()) focusBounds(box);
+  } else if (controls) {
+    const c = overviewCam(1); controls.target.copy(c.look); camera.position.copy(c.pos); camera.up.copy(c.up); controls.update();
+  }
+  updateHud(["", "", sys ? `${STOPS.find(s => s.sys === sys).title} only · drag to orbit` : "All systems · drag to orbit · scroll to zoom"]);
+}
+function setExploded(value) {
+  viewerExploded = value;
+  bar.querySelector("[data-explode]").setAttribute("aria-pressed", String(value));
+  if (value) {
+    setPose("glide"); if (!viewerXray) setInspection(true);
+    if (controls) { const c = overviewCam(1); controls.target.copy(c.look); camera.position.copy(c.pos); camera.up.copy(c.up); controls.update(); }
+  }
+}
+function focusBounds(box) {
+  const sphere = box.getBoundingSphere(new THREE.Sphere());
+  const dir = camera.position.clone().sub(controls.target).normalize();
+  const fov = Math.min(camera.fov * Math.PI / 180, 2 * Math.atan(Math.tan(camera.fov * Math.PI / 360) * camera.aspect));
+  const distance = Math.max(0.2, sphere.radius / Math.sin(fov / 2) * 1.55);
+  controls.target.copy(sphere.center); camera.position.copy(sphere.center).addScaledVector(dir, distance); controls.update();
 }
 function closeViewer() {
+  isolatedSystem = null; restoreIsolationVisibility();
+  subsystemFilter.setActive(false); viewerXray = false; viewerExploded = false; applyExploded(0);
   controls?.dispose(); controls = null; viewerPose = null;
-  stage.classList.remove("viewer");
-  bar.hidden = true;
-  document.body.style.overflow = "";
-  resize(); readScroll();
+  stage.classList.remove("viewer", "showing-systems"); bar.hidden = true; document.body.style.overflow = "";
+  resize(); readScroll(); returnFocus?.focus?.({ preventScroll: true });
 }
 function setPose(name) {
   viewerPose = { ...POSES[name] };
@@ -484,22 +596,33 @@ function setPose(name) {
 document.getElementById("launch-viewer").addEventListener("click", () => { flight.scrollIntoView(); openViewer(); });
 bar.addEventListener("click", (ev) => {
   const t = ev.target.closest("button"); if (!t) return;
-  if (t.dataset.close !== undefined) closeViewer(); else setPose(t.dataset.pose);
+  if (t.dataset.close !== undefined) closeViewer();
+  else if (t.dataset.explode !== undefined) setExploded(!viewerExploded);
+  else if (t.dataset.inspect !== undefined) setInspection(!viewerXray);
+  else if (t.dataset.pose) setPose(t.dataset.pose);
 });
 window.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && controls) closeViewer(); });
 
 // ---------------------------------------------------------------- loop
 
 let shown = { fold: 88, roll: 0, bank: 0, crow: 0 };
+let flightVisible = true;
+const flightVisibility = new IntersectionObserver(([entry]) => { flightVisible = entry.isIntersecting; });
+flightVisibility.observe(flight);
 function frame() {
   if (pinned !== null || recording) return;                  // pinned/recording modes draw on demand
   requestAnimationFrame(frame);
-  if (!webgl) return;
+  if (!webgl || document.hidden) return;
   const dt = Math.min(clock.getDelta(), 0.05);                     // also advances clock.elapsedTime for the demonstrations
+  if (!controls && !flightVisible) { progress = target; return; } // keep scroll state current without drawing an offscreen scene
   if (controls) {                                            // viewer: ease toward the chosen pose
     const k = Math.min(1, dt * 4);
     for (const key of Object.keys(shown)) shown[key] += (viewerPose[key] - shown[key]) * k;
-    applyPose(shown);
+    restoreIsolationVisibility(); applyPose(shown);
+    explosionAmount += ((viewerExploded ? 1 : 0) - explosionAmount) * (reduceMotion ? 1 : k);
+    applyExploded(explosionAmount);
+    applyXray({ xray: viewerXray ? 1 : 0, stop: isolatedSystem ? STOPS.findIndex(s => s.sys === isolatedSystem) : -1, focus: isolatedSystem ? 1 : 0, explode: explosionAmount });
+    applyIsolation();
     controls.update();
     placeRim();
     renderer.render(scene, camera);
@@ -512,7 +635,7 @@ frame();
 
 // ---------------------------------------------------------------- page bits
 const QUALITIES = [
-  ["Phone as the brain", "An ordinary Android phone runs the cameras, detection and mission logic. Flight control and failsafes run on the autopilot, independently of the phone. Phone-loss responses have been tested in simulation; flight validation is next."],
+  ["Phone as the brain", "An ordinary Android phone runs the cameras, detection and mission logic. Flight control and failsafes run on the autopilot, independently of the phone, and the autopilot will not launch until the preflight checklist is complete. Phone-loss responses have been tested in simulation; flight validation is next."],
   ["Plans its own landing", "Before takeoff it scores landing sites from open terrain and land-cover data, loads each as an autopilot landing sequence, and notifies the people nearby."],
   ["Printed, foam, repairable", "A 3D-printed centre body with CNC-cut foam wings. It comes apart into three pieces for transport: each wing slides off its carbon joiner after one bolt and one plug. Wear parts such as the belly skid and prop blades are designed to swap in the field."],
   ["Open and free tools", "Designed end to end with free software: FreeCAD, AeroSandbox, OpenVSP, SU2, CalculiX and ArduPilot."],

@@ -10,7 +10,7 @@ import { createSubsystemFilter } from "./subsystems.js?v=1";
 import { STOPS } from "./tour.js?v=24";
 import { SHOTS, FILM } from "./shots.js?v=43";
 
-const ASSET_VERSION = "11";                                    // bump when the model is rebuilt (cache busting)
+const ASSET_VERSION = "12";                                    // bump when the model is rebuilt (cache busting)
 const canvas = document.getElementById("view");
 const stage = canvas.parentElement;
 const flight = document.getElementById("flight");

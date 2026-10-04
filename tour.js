@@ -45,7 +45,7 @@ export const STOPS = [
   },
   {
     sys: "landing", title: "Launch + landing", dir: [0.82, -0.3, 0.35], color: 0x5fd3a0,
-    text: "The aircraft lands on a deep, replaceable TPU skid sled that holds the landing load to 50 g. Printed cones in the belly seat it on the launch dolly, which it simply flies off at about 11.4 m/s.",
-    specs: [["Skid", "TPU-95A sled, 50 g design load"], ["Touchdown", "13 m/s approach, ~1 m/s sink, 60 m sites"], ["Launch", "passive dolly or hand / bungee"]],
+    text: "The aircraft lands on a deep, replaceable TPU skid sled that holds the landing load to 40 g. Printed cones in the belly seat it on the launch dolly, which it simply flies off at about 11.4 m/s.",
+    specs: [["Skid", "TPU-95A sled, 40 g design load"], ["Touchdown", "13 m/s approach, ~1 m/s sink, 60 m sites"], ["Launch", "passive dolly or hand / bungee"]],
   },
 ];

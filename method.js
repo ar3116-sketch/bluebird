@@ -94,9 +94,9 @@ export const METHOD = [
   {
     step: "Structures",
     decision: "Design the spar joint around the belly-landing load.",
-    why: "The current landing model applies a brief 50 g acceleration at the centre body and transfers the wings' inertia into bending and twist at the spar joint. This is a design assumption awaiting impact-test validation. A thicker carbon joiner and machined aluminium node improve the initial design, but the latest detailed joint study still falls short of its stress and safety-factor targets. No joint variant has been accepted.",
+    why: "The current landing model applies a brief 40 g acceleration at the centre body (1.5 m/s limit sink with the rangefinder flare; was 50 g) and transfers the wings' inertia into bending and twist at the spar joint. This is a design assumption awaiting impact-test validation. A thicker carbon joiner and machined aluminium node improve the initial design, but the latest detailed joint study still falls short of its stress and safety-factor targets. No joint variant has been accepted.",
     trade: { cols: ["Part", "Earlier study", "Current status"], win: -1, rows: [
-      ["Skid", "117 g predicted at CG", "50 g design input; impact test needed"],
+      ["Skid", "117 g predicted at CG", "40 g design input; impact test needed"],
       ["Joiner tube", "12×10: RF 0.67", "12×8 trial: 640 MPa; provisional limit 600 MPa"],
       ["Spar node", "PETG-CF box: SF 0.41", "7075 trial: SF 1.17; target 1.20"],
       ["Joint interfaces", "ideal bonded model", "stock properties, adhesive and slip unqualified"]] },

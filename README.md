@@ -13,4 +13,4 @@ Live site: https://ar3116-sketch.github.io/bluebird/
 - `assets/bluebird.glb`: the web model, exported from the FreeCAD design with the Rev C livery.
 - `assets/bluebird_whitepaper.pdf`: the technical white paper (revision A).
 
-Contact: Advaith Renjith, ar3116@scarletmail.rutgers.edu
+Contact: bluebirdoutreach@gmail.com
